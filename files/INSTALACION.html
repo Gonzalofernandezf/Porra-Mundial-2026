@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instalación — Porra Mundial 2026</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
+:root { --bg:#0D0D0D; --panel:#1A1A1A; --border:#2A2A2A; --text:#E8E8E8; --muted:#666; --blue:#3b82f6; --gold:#f59e0b; --green:#10b981; --red:#ef4444; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.6;padding:0 0 80px}
+.hero{background:#111;border-bottom:3px solid var(--blue);padding:40px 24px;text-align:center}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,6vw,56px);letter-spacing:2px;color:#fff}
+.hero h1 span{color:var(--gold)}
+.hero p{color:var(--muted);margin-top:8px;font-size:14px}
+.main{max-width:720px;margin:0 auto;padding:32px 20px}
+.phase{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:24px}
+.phase-num{font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--blue);line-height:1;margin-bottom:4px}
+.phase-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:#fff;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.step{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);align-items:flex-start;font-size:14px}
+.step:last-child{border:none}
+.sn{font-family:'DM Mono',monospace;font-size:11px;background:var(--blue);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step strong{color:#fff}
+code{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:2px 7px;font-family:'DM Mono',monospace;font-size:12px;color:var(--gold)}
+.tip{border-radius:6px;padding:12px 14px;font-size:13px;line-height:1.5;display:flex;gap:8px;margin:14px 0}
+.tip.warn{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.25)}
+.tip.info{background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.25)}
+.tip.ok{background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.25)}
+.tip strong{color:#fff}
+.code-block{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px;font-family:'DM Mono',monospace;font-size:12px;color:var(--gold);line-height:1.7;overflow-x:auto;margin:10px 0;white-space:pre}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-family:'DM Mono',monospace}
+.badge.free{background:rgba(16,185,129,.1);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.badge.req{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>GUÍA DE INSTALACIÓN<br><span>Sistema Porra Mundial 2026</span></h1>
+  <p>Apps Script (servidor) + HTML (app) + Google Sheets (datos) · Todo gratuito</p>
+</div>
+<div class="main">
+
+  <!-- ARQUITECTURA -->
+  <div class="phase">
+    <div class="phase-num">🏗</div>
+    <div class="phase-title">Cómo funciona el sistema</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">Tres piezas que se comunican entre sí:</div>
+    <div style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:8px;align-items:center;text-align:center;font-size:12px;">
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px"><div style="font-size:20px">🌐</div><div style="font-weight:600;color:#fff;margin-top:4px">HTML App</div><div style="color:var(--muted)">GitHub Pages<br>Lo ven tus amigos</div></div>
+      <div style="color:var(--blue);font-size:18px">⟷</div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px"><div style="font-size:20px">⚙️</div><div style="font-weight:600;color:#fff;margin-top:4px">Apps Script</div><div style="color:var(--muted)">Servidor API<br>Lee y escribe</div></div>
+      <div style="color:var(--blue);font-size:18px">⟷</div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px"><div style="font-size:20px">📊</div><div style="font-weight:600;color:#fff;margin-top:4px">Google Sheets</div><div style="color:var(--muted)">Base de datos<br>Tu Excel</div></div>
+    </div>
+    <div class="tip ok" style="margin-top:16px"><span>✅</span><span>Los tres son <strong>gratuitos</strong> y no hay límite de usuarios.</span></div>
+  </div>
+
+  <!-- FASE 1: GOOGLE SHEETS -->
+  <div class="phase">
+    <div class="phase-num">01</div>
+    <div class="phase-title">Subir Excel a Google Sheets</div>
+    <div class="step"><div class="sn">1</div><div>Ve a <strong>drive.google.com</strong>, sube <code>porra_mundial_2026_v4.xlsx</code> y ábrelo con Google Sheets</div></div>
+    <div class="step"><div class="sn">2</div><div>Renómbralo <strong>"Porra Mundial 2026"</strong></div></div>
+    <div class="step"><div class="sn">3</div><div>En la hoja <strong>Participantes</strong>, añade una columna <code>Pts_Total</code> con esta fórmula en cada fila (ajusta las columnas según corresponda):
+      <div class="code-block">=SUMIF(Predicciones_Grupos!A:A, A2, Predicciones_Grupos!K:K)</div>
+      Donde A = Email_Usuario y K = Pts_Total de Predicciones_Grupos
+    </div></div>
+    <div class="step"><div class="sn">4</div><div>Sustituye los slots por los emails reales de tus amigos en la hoja <strong>Participantes</strong>. Usa <strong>Ctrl+H</strong> para buscar y reemplazar ese email también en <strong>Predicciones_Grupos</strong> y <strong>Predicciones_Eliminatorias</strong></div></div>
+  </div>
+
+  <!-- FASE 2: APPS SCRIPT -->
+  <div class="phase">
+    <div class="phase-num">02</div>
+    <div class="phase-title">Instalar el servidor Apps Script</div>
+    <div class="step"><div class="sn">1</div><div>Con el Google Sheet abierto, ve a <strong>Extensiones → Apps Script</strong></div></div>
+    <div class="step"><div class="sn">2</div><div>Borra todo el contenido del editor y pega el contenido completo del archivo <code>Code.gs</code> que te he generado</div></div>
+    <div class="step"><div class="sn">3</div><div>Guarda con <strong>Ctrl+S</strong>. Dale el nombre <strong>"Porra Mundial API"</strong> al proyecto</div></div>
+    <div class="step"><div class="sn">4</div><div>Pulsa <strong>Implementar → Nueva implementación</strong></div></div>
+    <div class="step"><div class="sn">5</div><div>Configura así:
+      <div class="code-block">Tipo:              Aplicación web
+Descripción:       Porra Mundial 2026
+Ejecutar como:     Yo (tu cuenta de Google)
+Quién tiene acceso: Cualquier usuario de Google</div>
+    </div></div>
+    <div class="step"><div class="sn">6</div><div>Pulsa <strong>Implementar</strong>. Google te pedirá autorizar permisos — acéptalos todos (es tu propio script sobre tu propio Sheet)</div></div>
+    <div class="step"><div class="sn">7</div><div>Copia la <strong>URL del deployment</strong> que aparece. Tiene este aspecto:
+      <div class="code-block">https://script.google.com/macros/s/AKfycb.../exec</div>
+      <strong>Guárdala</strong> — la necesitas en el siguiente paso
+    </div></div>
+    <div class="tip warn"><span>⚠️</span><span>Cada vez que modifiques el código Apps Script, debes crear una <strong>nueva implementación</strong> (no editar la existente) para que los cambios surtan efecto.</span></div>
+  </div>
+
+  <!-- FASE 3: GOOGLE OAUTH -->
+  <div class="phase">
+    <div class="phase-num">03</div>
+    <div class="phase-title">Configurar Google Sign-In <span class="badge free">Gratis</span></div>
+    <div class="step"><div class="sn">1</div><div>Ve a <strong>console.cloud.google.com</strong> e inicia sesión con tu cuenta de Google</div></div>
+    <div class="step"><div class="sn">2</div><div>Crea un nuevo proyecto: <strong>Nuevo proyecto → "Porra Mundial 2026"</strong></div></div>
+    <div class="step"><div class="sn">3</div><div>En el menú lateral: <strong>APIs y servicios → Credenciales</strong></div></div>
+    <div class="step"><div class="sn">4</div><div>Pulsa <strong>Crear credenciales → ID de cliente OAuth</strong></div></div>
+    <div class="step"><div class="sn">5</div><div>Tipo de aplicación: <strong>Aplicación web</strong></div></div>
+    <div class="step"><div class="sn">6</div><div>En <strong>Orígenes autorizados</strong> añade:
+      <div class="code-block">https://TU_USUARIO.github.io
+http://localhost (para pruebas locales)</div>
+    </div></div>
+    <div class="step"><div class="sn">7</div><div>Pulsa <strong>Crear</strong>. Copia el <strong>ID de cliente</strong> que aparece. Tiene este aspecto:
+      <div class="code-block">123456789-abcdefgh.apps.googleusercontent.com</div>
+    </div></div>
+    <div class="step"><div class="sn">8</div><div>En <strong>APIs y servicios → Pantalla de consentimiento OAuth</strong>, configura el nombre de la app como <strong>"Porra Mundial 2026"</strong> y añade tu email como usuario de prueba. Tipo de usuario: <strong>Externo</strong></div></div>
+    <div class="tip info"><span>💡</span><span>En modo "Externo" y sin verificar, Google puede mostrar una advertencia a tus amigos al hacer login. Pulsan "Avanzado → Ir a Porra Mundial (no seguro)" — es completamente normal para apps privadas no verificadas.</span></div>
+  </div>
+
+  <!-- FASE 4: HTML -->
+  <div class="phase">
+    <div class="phase-num">04</div>
+    <div class="phase-title">Configurar el HTML de la app</div>
+    <div class="step"><div class="sn">1</div><div>Abre el archivo <code>porra_mundial_2026.html</code> con cualquier editor de texto</div></div>
+    <div class="step"><div class="sn">2</div><div>Busca las dos primeras líneas de configuración y reemplaza los valores:
+      <div class="code-block">const API_URL = 'https://script.google.com/macros/s/TU_ID/exec';
+const GOOGLE_CLIENT_ID = '123456789-abc.apps.googleusercontent.com';</div>
+    </div></div>
+    <div class="step"><div class="sn">3</div><div>Opcionalmente personaliza el subtítulo en la pantalla de login — busca <strong>"Organizado por Gonzalo"</strong> y cámbialo a tu gusto</div></div>
+    <div class="step"><div class="sn">4</div><div>Guarda el archivo</div></div>
+    <div class="tip ok"><span>✅</span><span>Con esos dos valores configurados, la app ya funciona completamente. El resto del código no necesita tocarse.</span></div>
+  </div>
+
+  <!-- FASE 5: GITHUB PAGES -->
+  <div class="phase">
+    <div class="phase-num">05</div>
+    <div class="phase-title">Publicar en GitHub Pages <span class="badge free">Gratis</span></div>
+    <div class="step"><div class="sn">1</div><div>Crea una cuenta en <strong>github.com</strong> si no tienes una (es gratis)</div></div>
+    <div class="step"><div class="sn">2</div><div>Crea un repositorio nuevo: <strong>New repository → "porra-mundial-2026"</strong>. Márcalo como <strong>Public</strong></div></div>
+    <div class="step"><div class="sn">3</div><div>Sube el archivo HTML: en la página del repo, pulsa <strong>"uploading an existing file"</strong> y arrastra <code>porra_mundial_2026.html</code></div></div>
+    <div class="step"><div class="sn">4</div><div>Renombra el archivo a <code>index.html</code> antes de subir (o edítalo en GitHub tras subirlo)</div></div>
+    <div class="step"><div class="sn">5</div><div>Ve a <strong>Settings → Pages</strong> del repo. En "Source" selecciona <strong>main branch</strong> y pulsa Save</div></div>
+    <div class="step"><div class="sn">6</div><div>En 1-2 minutos tendrás una URL del tipo:
+      <div class="code-block">https://TU_USUARIO.github.io/porra-mundial-2026</div>
+      Esa es la URL que mandas a tus amigos por WhatsApp 🎉
+    </div></div>
+    <div class="tip info"><span>💡</span><span><strong>Alternativa más rápida:</strong> Puedes usar <strong>Netlify Drop</strong> (netlify.com/drop) — arrastras el HTML y en 30 segundos tienes una URL pública. Sin crear cuenta. Perfecto para probar antes de configurar GitHub.</span></div>
+  </div>
+
+  <!-- FASE 6: PROBAR -->
+  <div class="phase">
+    <div class="phase-num">06</div>
+    <div class="phase-title">Probar antes de compartir</div>
+    <div class="step"><div class="sn">1</div><div>Abre la URL en tu móvil y haz login con tu cuenta de Google (la que tiene <code>gafernandez.93f@gmail.com</code>)</div></div>
+    <div class="step"><div class="sn">2</div><div>Verifica que aparecen tus 72 partidos de fase de grupos correctamente</div></div>
+    <div class="step"><div class="sn">3</div><div>Pon una predicción de prueba y comprueba en Google Sheets que se ha escrito en la hoja <strong>Predicciones_Grupos</strong></div></div>
+    <div class="step"><div class="sn">4</div><div>Comprueba que la pestaña <strong>Ranking</strong> muestra tu nombre</div></div>
+    <div class="step"><div class="sn">5</div><div>Prueba con el email de un amigo: añádelo a Participantes, entra desde su móvil, verifica que solo ve sus predicciones</div></div>
+    <div class="tip warn"><span>⚠️</span><span>Si ves errores de CORS en la consola del navegador, probablemente el Apps Script no está correctamente desplegado. Vuelve al paso 2 y verifica que el deployment está activo y con acceso "Cualquier usuario de Google".</span></div>
+  </div>
+
+  <!-- RESUMEN -->
+  <div class="phase" style="border-color:var(--green)">
+    <div class="phase-num" style="color:var(--green)">✅</div>
+    <div class="phase-title">Checklist final</div>
+    <div class="step"><div class="sn" style="background:var(--green)">✓</div><div>Google Sheet con datos correctos y columna Pts_Total en Participantes</div></div>
+    <div class="step"><div class="sn" style="background:var(--green)">✓</div><div>Apps Script desplegado con la URL del deployment copiada</div></div>
+    <div class="step"><div class="sn" style="background:var(--green)">✓</div><div>Google Cloud Console con Client ID OAuth creado</div></div>
+    <div class="step"><div class="sn" style="background:var(--green)">✓</div><div>HTML con API_URL y GOOGLE_CLIENT_ID rellenados</div></div>
+    <div class="step"><div class="sn" style="background:var(--green)">✓</div><div>App publicada en GitHub Pages o Netlify</div></div>
+    <div class="step"><div class="sn" style="background:var(--green)">✓</div><div>Probada con tu email — predicciones se guardan en Sheets</div></div>
+    <div class="step"><div class="sn" style="background:var(--green)">✓</div><div>Emails de amigos añadidos en Participantes y Predicciones</div></div>
+    <div class="tip ok" style="margin-top:16px"><span>🚀</span><span><strong>¡Listo!</strong> Manda la URL por WhatsApp y que empiece la porra.</span></div>
+  </div>
+
+</div>
+</body>
+</html>
