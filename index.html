@@ -1094,6 +1094,22 @@ function showView(name) {
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('view-' + name).classList.add('active');
   event.currentTarget.classList.add('active');
+  refreshView(name);
+}
+
+async function refreshView(name) {
+  try {
+    if (name === 'ranking') {
+      const r = await api('getRanking');
+      if (r.ok) { state.ranking = r.data || []; renderRanking(); }
+    } else if (name === 'grupos') {
+      const r = await api('getPartidos');
+      if (r.ok) { state.partidos = r.data || []; renderGrupoDetail(); }
+    } else if (name === 'playoffs') {
+      const r = await api('getPartidos');
+      if (r.ok) { state.partidos = r.data || []; renderPlayoffs(); }
+    }
+  } catch(e) { /* silencioso, mantenemos lo que ya hay */ }
 }
 
 // ═══════════════════════════════════════════════════════
