@@ -320,6 +320,70 @@ body {
   border-radius: 8px; height: 80px; margin-bottom: 10px;
 }
 @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+/* ── ESPECIALES (Bota / MVP) ── */
+.especial-section { display: flex; gap: 10px; margin-bottom: 18px; }
+.especial-card {
+  flex: 1; background: var(--card);
+  border: 1px solid var(--border); border-radius: 12px;
+  padding: 12px;
+}
+.especial-card label {
+  display: block; font-size: 12px; color: var(--muted);
+  margin-bottom: 6px; font-weight: 600;
+}
+.especial-card input {
+  width: 100%; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 9px 10px; color: var(--text);
+  font-family: 'DM Sans', sans-serif; font-size: 13px;
+}
+.especial-card input:focus { outline: none; border-color: var(--accent); }
+.especial-card input:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── GROUP SELECTOR ── */
+.group-selector {
+  margin-bottom: 18px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+}
+.group-selector label {
+  display: block; font-size: 12px; color: var(--muted);
+  margin-bottom: 6px; font-weight: 600;
+}
+.group-selector select {
+  width: 100%; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 10px 12px; color: var(--text);
+  font-family: 'DM Sans', sans-serif; font-size: 14px;
+  cursor: pointer; appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='%2364748b' d='M6 8L0 0h12z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+/* ── STANDINGS ── */
+.standings-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px; margin-bottom: 14px;
+}
+.standings-title { font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+.standings-table { width: 100%; border-collapse: collapse; font-size: 12px; font-family: 'DM Mono', monospace; }
+.standings-table th, .standings-table td {
+  padding: 6px 4px; text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+.standings-table th { font-size: 10px; color: var(--muted); font-weight: 600; }
+.standings-table td:nth-child(2) {
+  text-align: left; font-family: 'DM Sans', sans-serif;
+  font-weight: 500; max-width: 110px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.standings-table tbody tr:last-child td { border-bottom: none; }
+.standings-table tbody tr.qual td { color: var(--green); }
+.standings-note { font-size: 11px; color: var(--muted); margin-top: 8px; font-style: italic; }
 </style>
 </head>
 <body>
@@ -420,6 +484,7 @@ let state = {
   ranking: [],
   config: {},
   saveTimers: {},    // Debounce timers por partido
+  selectedGroup: null,
 };
 
 // ═══════════════════════════════════════════════════════
@@ -550,50 +615,198 @@ async function apiPost(action, body) {
 // ═══════════════════════════════════════════════════════
 // VISTA: GRUPOS
 // ═══════════════════════════════════════════════════════
-function renderGrupos() {
-  const container = document.getElementById('grupos-content');
+const GROUP_COLORS = {
+  A:'#3b82f6',B:'#8b5cf6',C:'#10b981',D:'#f59e0b',
+  E:'#ef4444',F:'#06b6d4',G:'#ec4899',H:'#84cc16',
+  I:'#f97316',J:'#a855f7',K:'#14b8a6',L:'#eab308'
+};
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => (
+    {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]
+  ));
+}
+
+function getGruposMap() {
   const partGrupos = state.partidos.filter(p => p.Fase === 'Grupos');
-  
-  // Agrupar por grupo
   const groups = {};
   partGrupos.forEach(p => {
     if (!groups[p.Grupo]) groups[p.Grupo] = [];
     groups[p.Grupo].push(p);
   });
+  return groups;
+}
 
-  // Map predicciones por ID_Partido
-  const predMap = {};
-  state.predicciones.forEach(p => { predMap[p.ID_Partido] = p; });
+function getPredMap() {
+  const m = {};
+  state.predicciones.forEach(p => { m[p.ID_Partido] = p; });
+  return m;
+}
 
-  let html = '';
-  const groupColors = {
-    A:'#3b82f6',B:'#8b5cf6',C:'#10b981',D:'#f59e0b',
-    E:'#ef4444',F:'#06b6d4',G:'#ec4899',H:'#84cc16',
-    I:'#f97316',J:'#a855f7',K:'#14b8a6',L:'#eab308'
-  };
+function renderGrupos() {
+  const container = document.getElementById('grupos-content');
+  const groups = getGruposMap();
+  const groupKeys = Object.keys(groups).sort();
 
-  Object.keys(groups).sort().forEach(grp => {
-    const partidos = groups[grp];
-    const preds = partidos.map(p => predMap[p.ID_Partido]);
-    const done = preds.filter(p => p && p.Prediccion_A !== '' && p.Prediccion_A !== null && p.Prediccion_B !== null && p.Prediccion_B !== '').length;
-    const total = partidos.length;
-    const color = groupColors[grp] || '#3b82f6';
+  if (!state.selectedGroup || !groups[state.selectedGroup]) {
+    state.selectedGroup = groupKeys[0] || null;
+  }
 
-    html += `
+  const predMap = getPredMap();
+  const bota = (state.participante && state.participante.Bota_Oro) || '';
+  const mvp  = (state.participante && state.participante.MVP) || '';
+
+  const cfg = state.config || {};
+  const fechaLimite = cfg['FECHA_LIMITE_ESPECIAL'] || cfg['FECHA_LIMITE_GRUPOS'];
+  const especialBloqueado = fechaLimite ? (new Date() > new Date(fechaLimite)) : false;
+
+  container.innerHTML = `
+    <div class="especial-section">
+      <div class="especial-card">
+        <label>🥇 Bota de oro</label>
+        <input type="text" id="input-bota"
+          value="${escapeHtml(bota)}"
+          placeholder="Nombre del jugador"
+          ${especialBloqueado ? 'disabled' : ''}
+          onchange="saveEspecial('bota')">
+      </div>
+      <div class="especial-card">
+        <label>⭐ MVP del torneo</label>
+        <input type="text" id="input-mvp"
+          value="${escapeHtml(mvp)}"
+          placeholder="Nombre del jugador"
+          ${especialBloqueado ? 'disabled' : ''}
+          onchange="saveEspecial('mvp')">
+      </div>
+    </div>
+
+    ${groupKeys.length === 0 ? '' : `
+    <div class="group-selector">
+      <label for="grupo-select">📋 Selecciona grupo</label>
+      <select id="grupo-select" onchange="selectGroup(this.value)">
+        ${groupKeys.map(g => {
+          const partidos = groups[g];
+          const done = partidos.filter(p => {
+            const pr = predMap[p.ID_Partido];
+            return pr && pr.Prediccion_A !== '' && pr.Prediccion_A !== null
+                && pr.Prediccion_B !== '' && pr.Prediccion_B !== null;
+          }).length;
+          return `<option value="${g}" ${g === state.selectedGroup ? 'selected':''}>Grupo ${g} — ${done}/${partidos.length} predicciones</option>`;
+        }).join('')}
+      </select>
+    </div>`}
+
+    <div id="grupo-detail"></div>
+  `;
+
+  renderGrupoDetail();
+}
+
+function selectGroup(g) {
+  state.selectedGroup = g;
+  renderGrupoDetail();
+}
+
+function renderGrupoDetail() {
+  const detail = document.getElementById('grupo-detail');
+  if (!detail) return;
+  const groups = getGruposMap();
+  const grp = state.selectedGroup;
+  if (!grp || !groups[grp]) {
+    detail.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>No hay partidos disponibles</p></div>';
+    return;
+  }
+
+  const predMap = getPredMap();
+  const partidos = groups[grp];
+  const standings = computeStandings(partidos);
+  const color = GROUP_COLORS[grp] || '#3b82f6';
+  const haySomeResult = partidos.some(p => p.Completado);
+
+  detail.innerHTML = `
     <div class="group-section">
       <div class="group-header">
         <div class="group-badge" style="background:${color}">G${grp}</div>
         <span class="group-name">Grupo ${grp}</span>
-        <span class="group-progress">${done}/${total}</span>
+      </div>
+      <div class="standings-card">
+        <div class="standings-title">Clasificación actual</div>
+        <table class="standings-table">
+          <thead><tr>
+            <th>#</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>Pts</th>
+          </tr></thead>
+          <tbody>
+            ${standings.map((s,i) => `<tr class="${i<2 ? 'qual' : ''}">
+              <td>${i+1}</td>
+              <td>${escapeHtml(s.equipo)}</td>
+              <td>${s.pj}</td><td>${s.g}</td><td>${s.e}</td><td>${s.p}</td>
+              <td>${s.gf}</td><td>${s.gc}</td>
+              <td>${s.dg>0?'+':''}${s.dg}</td>
+              <td><b>${s.pts}</b></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+        <div class="standings-note">${haySomeResult ? 'Se actualiza con los resultados reales del torneo' : 'Aún no hay resultados ingresados'}</div>
       </div>
       ${partidos.map(p => renderMatchCard(p, predMap[p.ID_Partido])).join('')}
-    </div>`;
-  });
+    </div>
+  `;
+}
 
-  container.innerHTML = html || '<div class="empty-state"><div class="icon">📋</div><p>No hay partidos disponibles</p></div>';
-  
-  // Animar barras de ranking si las hay
-  setTimeout(() => document.querySelectorAll('.rank-bar-fill').forEach(b => b.style.width = b.dataset.width), 100);
+function computeStandings(partidos) {
+  const teams = {};
+  const ensure = t => {
+    if (!t) return null;
+    if (!teams[t]) teams[t] = { equipo:t, pj:0, g:0, e:0, p:0, gf:0, gc:0, dg:0, pts:0 };
+    return teams[t];
+  };
+  partidos.forEach(p => {
+    ensure(p.Equipo_A);
+    ensure(p.Equipo_B);
+    const completado = p.Completado === true || p.Completado === 'TRUE' || p.Completado === 'true';
+    const ra = p.Resultado_A;
+    const rb = p.Resultado_B;
+    if (completado && ra !== '' && ra !== null && rb !== '' && rb !== null) {
+      const a = ensure(p.Equipo_A);
+      const b = ensure(p.Equipo_B);
+      if (!a || !b) return;
+      const na = Number(ra), nb = Number(rb);
+      a.pj++; b.pj++;
+      a.gf += na; a.gc += nb;
+      b.gf += nb; b.gc += na;
+      if (na > nb)      { a.g++; a.pts += 3; b.p++; }
+      else if (na < nb) { b.g++; b.pts += 3; a.p++; }
+      else              { a.e++; b.e++; a.pts++; b.pts++; }
+    }
+  });
+  Object.values(teams).forEach(t => t.dg = t.gf - t.gc);
+  return Object.values(teams).sort((x,y) =>
+    y.pts - x.pts || y.dg - x.dg || y.gf - x.gf || x.equipo.localeCompare(y.equipo)
+  );
+}
+
+async function saveEspecial(tipo) {
+  const inp = document.getElementById('input-' + tipo);
+  if (!inp) return;
+  const valor = inp.value.trim();
+  try {
+    const r = await apiPost('saveEspecial', {
+      email: state.user.email,
+      tipo,
+      valor,
+    });
+    if (r.ok) {
+      if (state.participante) {
+        if (tipo === 'bota') state.participante.Bota_Oro = valor;
+        else state.participante.MVP = valor;
+      }
+      showToast('✓ Guardado', 'success');
+    } else {
+      showToast(r.error || 'Error al guardar', 'error');
+    }
+  } catch(e) {
+    showToast('Error de conexión', 'error');
+  }
 }
 
 function renderMatchCard(partido, pred) {
@@ -607,22 +820,24 @@ function renderMatchCard(partido, pred) {
   const tieneB  = predB !== null && predB !== '';
   const tienePred = tieneA && tieneB;
 
-  const ptsTotal  = pred ? (pred.Pts_Total || 0) : 0;
-  const ptsExacto = pred ? (pred.Pts_Exacto || 0) : 0;
-  const ptsGan    = pred ? (pred.Pts_Ganador || 0) : 0;
-
-  const fechaStr = fecha.toLocaleDateString('es-ES', { day:'numeric', month:'short' }) + 
+  const fechaStr = fecha.toLocaleDateString('es-ES', { day:'numeric', month:'short' }) +
                    ' · ' + fecha.toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' });
 
   const cardClass = `match-card${tienePred ? ' done' : ''}${bloqueado ? ' locked' : ''}`;
 
   let ptsHtml = '';
-  if (completado && pred) {
-    if (ptsExacto > 0) {
-      ptsHtml = `<div class="pts-row"><span class="pts-badge exacto">⭐ Exacto +${ptsExacto}</span><span class="pts-badge ganador">+${ptsGan} ganador</span></div>`;
-    } else if (ptsGan > 0) {
-      ptsHtml = `<div class="pts-row"><span class="pts-badge ganador">✓ Ganador +${ptsGan} pts</span></div>`;
-    } else if (tienePred) {
+  if (completado && pred && tienePred) {
+    const ra = Number(partido.Resultado_A);
+    const rb = Number(partido.Resultado_B);
+    const pa = Number(predA);
+    const pb = Number(predB);
+    const exacto = ra === pa && rb === pb;
+    const aciertaGanador = Math.sign(ra - rb) === Math.sign(pa - pb);
+    if (exacto) {
+      ptsHtml = `<div class="pts-row"><span class="pts-badge exacto">⭐ Exacto +3</span><span class="pts-badge ganador">+1 ganador</span></div>`;
+    } else if (aciertaGanador) {
+      ptsHtml = `<div class="pts-row"><span class="pts-badge ganador">✓ Ganador +1</span></div>`;
+    } else {
       ptsHtml = `<div class="pts-row"><span class="pts-badge cero">0 pts</span></div>`;
     }
   }
